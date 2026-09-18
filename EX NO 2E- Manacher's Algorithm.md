@@ -1,119 +1,76 @@
-
 # EX 2E Pattern Matching using KMP Algorithm.
-## DATE: 7.8.26
+
+## DATE: 07-08-2026
+
+### Developed by: NARESH.R
+### Register Number: 212223240104
+
 ## AIM:
-To write a Java program for the following constraints.
-Longest Palindromic Substring
-Given a string s, return the longest palindromic substring in s.
-using Manacher's Algorithm
+
+To write a Java program for the following constraints.  
+Longest Palindromic Substring  
+Given a string **s**, return the longest palindromic substring in **s**,  
+using **Manacher's Algorithm**.
 
 ## Algorithm
-1. Transform the string by inserting # between characters (e.g., "babad" → #b#a#b#a#d#) to handle odd/even palindromes uniformly.
 
-2. Create an array palindromeRadii[] to store the palindrome radius at each index and initialize center = 0, radius = 0.
-
-3. Scan each position i in the transformed string and compute its mirror index using mirror = 2 * center - i.
-
-4. If i is within the current right boundary radius, initialize palindromeRadii[i] = min(radius - i, palindromeRadii[mirror]).
-
-5. Expand around index i while characters match on both sides and update the radius length for that center. If the palindrome expands beyond the current boundary,
-   update center and radius.
-
-6. After scanning all positions, find the index with the maximum radius, convert it back to the corresponding start index in the original string, and return the
-   substring. 
+1. Insert separators between characters to transform the string for uniform palindrome expansion.
+2. Maintain arrays and pointers (P-array, center, right boundary) to track palindrome radii.
+3. For each position, mirror the palindrome length from the opposite side when possible for optimization.
+4. Expand around each center to find the maximum palindrome radius.
+5. Convert the transformed indices back to the original string and return the longest palindromic substring.
 
 ## Program:
-```
-/*
-Program to implement Reverse a String
-Developed by: PRIYANGHA G
-Register Number: 212223040157
 
-# EX 2E Pattern Matching using KMP Algorithm.
-## DATE: 7.8.26
-## AIM:
-To write a Java program for the following constraints.
-Longest Palindromic Substring
-Given a string s, return the longest palindromic substring in s.
-using Manacher's Algorithm
-
-## Algorithm
-1. Transform the string by inserting # between characters (e.g., "babad" → #b#a#b#a#d#) to handle odd/even palindromes uniformly.
-
-2. Create an array palindromeRadii[] to store the palindrome radius at each index and initialize center = 0, radius = 0.
-
-3. Scan each position i in the transformed string and compute its mirror index using mirror = 2 * center - i.
-
-4. If i is within the current right boundary radius, initialize palindromeRadii[i] = min(radius - i, palindromeRadii[mirror]).
-
-5. Expand around index i while characters match on both sides and update the radius length for that center. If the palindrome expands beyond the current boundary,
-   update center and radius.
-
-6. After scanning all positions, find the index with the maximum radius, convert it back to the corresponding start index in the original string, and return the
-   substring. 
-
-## Program:
-```
-/*
-Program to implement Reverse a String
-Developed by: NARESH.R
-Register Number: 212223240104
-*/
+```java
 import java.util.Scanner;
 
 public class Solution {
     public String longestPalindrome(String s) {
-        
-        StringBuilder sPrime = new StringBuilder("#");
+
+        if (s == null || s.length() == 0) return "";
+
+        StringBuilder t = new StringBuilder();
+
+        t.append('^');
         for (char c : s.toCharArray()) {
-            sPrime.append(c).append("#");
+            t.append('#');
+            t.append(c);
         }
+        t.append("#$");
+        char[] str = t.toString().toCharArray();
 
-        int n = sPrime.length();
-        int[] palindromeRadii = new int[n];
-        int center = 0;
-        int radius = 0;
+        int n = str.length;
+        int[] P = new int[n];
+        int C = 0, R = 0;
+        int maxLen = 0, centerIndex = 0;
 
-       
-        for (int i = 0; i < n; i++) {
-            int mirror = 2 * center - i;
+        for (int i = 1; i < n - 1; i++) {
+            int mirror = 2 * C - i;
 
-            if (i < radius) {
-                palindromeRadii[i] = Math.min(radius - i, palindromeRadii[mirror]);
+            if (i < R)
+                P[i] = Math.min(R - i, P[mirror]);
+
+            while (str[i + P[i] + 1] == str[i - P[i] - 1])
+                P[i]++;
+
+            if (i + P[i] > R) {
+                C = i;
+                R = i + P[i];
             }
 
-            while (
-                i + 1 + palindromeRadii[i] < n &&
-                i - 1 - palindromeRadii[i] >= 0 &&
-                sPrime.charAt(i + 1 + palindromeRadii[i]) == sPrime.charAt(i - 1 - palindromeRadii[i])
-            ) {
-                palindromeRadii[i]++;
-            }
-
-            if (i + palindromeRadii[i] > radius) {
-                center = i;
-                radius = i + palindromeRadii[i];
-            }
-        }
-
-        
-        int maxLength = 0;
-        int centerIndex = 0;
-        for (int i = 0; i < n; i++) {
-            if (palindromeRadii[i] > maxLength) {
-                maxLength = palindromeRadii[i];
+            if (P[i] > maxLen) {
+                maxLen = P[i];
                 centerIndex = i;
             }
         }
 
-        int startIndex = (centerIndex - maxLength) / 2;
-        return s.substring(startIndex, startIndex + maxLength);
+        int start = (centerIndex - maxLen) / 2;
+        return s.substring(start, start + maxLen);
     }
 
-   
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        //System.out.println("Enter a string:");
         String input = scanner.nextLine();
 
         Solution sol = new Solution();
@@ -123,89 +80,12 @@ public class Solution {
         scanner.close();
     }
 }
-
 ```
 
 ## Output:
 
-<img width="781" height="305" alt="image" src="https://github.com/user-attachments/assets/d29a698a-aabf-4009-bd76-9b2dd87ea132" />
-
-
-## Result:
-The program successfully implemented and the expected output is verified.
-
-*/
-import java.util.Scanner;
-
-public class Solution {
-    public String longestPalindrome(String s) {
-        
-        StringBuilder sPrime = new StringBuilder("#");
-        for (char c : s.toCharArray()) {
-            sPrime.append(c).append("#");
-        }
-
-        int n = sPrime.length();
-        int[] palindromeRadii = new int[n];
-        int center = 0;
-        int radius = 0;
-
-       
-        for (int i = 0; i < n; i++) {
-            int mirror = 2 * center - i;
-
-            if (i < radius) {
-                palindromeRadii[i] = Math.min(radius - i, palindromeRadii[mirror]);
-            }
-
-            while (
-                i + 1 + palindromeRadii[i] < n &&
-                i - 1 - palindromeRadii[i] >= 0 &&
-                sPrime.charAt(i + 1 + palindromeRadii[i]) == sPrime.charAt(i - 1 - palindromeRadii[i])
-            ) {
-                palindromeRadii[i]++;
-            }
-
-            if (i + palindromeRadii[i] > radius) {
-                center = i;
-                radius = i + palindromeRadii[i];
-            }
-        }
-
-        
-        int maxLength = 0;
-        int centerIndex = 0;
-        for (int i = 0; i < n; i++) {
-            if (palindromeRadii[i] > maxLength) {
-                maxLength = palindromeRadii[i];
-                centerIndex = i;
-            }
-        }
-
-        int startIndex = (centerIndex - maxLength) / 2;
-        return s.substring(startIndex, startIndex + maxLength);
-    }
-
-   
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        //System.out.println("Enter a string:");
-        String input = scanner.nextLine();
-
-        Solution sol = new Solution();
-        String result = sol.longestPalindrome(input);
-
-        System.out.println("Longest Palindromic Substring: " + result);
-        scanner.close();
-    }
-}
-
-```
-
-## Output:
-
-<img width="781" height="305" alt="image" src="https://github.com/user-attachments/assets/d29a698a-aabf-4009-bd76-9b2dd87ea132" />
-
+<img width="831" height="209" alt="image" src="https://github.com/user-attachments/assets/e73b7be2-93db-48c8-9125-49e8b298c3d3" />
 
 ## Result:
+
 The program successfully implemented and the expected output is verified.
